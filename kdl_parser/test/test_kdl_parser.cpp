@@ -34,8 +34,9 @@
 
 /* Author: Wim Meeussen */
 
-#include <gtest/gtest.h>
-#include <ros/ros.h>
+#include <iostream>
+
+#include "gtest/gtest.h"
 #include "kdl_parser/kdl_parser.hpp"
 
 int g_argc;
@@ -61,7 +62,7 @@ protected:
 
 TEST_F(TestParser, test) {
   for (int i = 1; i < g_argc - 2; i++) {
-    ROS_ERROR("Testing file %s", g_argv[i]);
+    std::cerr << "Testing file " << g_argv[i] << std::endl;
     ASSERT_FALSE(kdl_parser::treeFromFile(g_argv[i], my_tree));
   }
 
@@ -72,7 +73,8 @@ TEST_F(TestParser, test) {
   ASSERT_EQ((unsigned int)1, my_tree.getRootSegment()->second.children.size());
   ASSERT_TRUE(my_tree.getSegment("base_link")->second.parent == my_tree.getRootSegment());
   ASSERT_EQ(10.0, my_tree.getSegment("base_link")->second.segment.getInertia().getMass());
-  ASSERT_NEAR(1.000, my_tree.getSegment(
+  ASSERT_NEAR(
+    1.000, my_tree.getSegment(
       "base_link")->second.segment.getInertia().getRotationalInertia().data[0], 0.001);
   SUCCEED();
 }
@@ -80,7 +82,6 @@ TEST_F(TestParser, test) {
 int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_kdl_parser");
   g_argc = argc;
   g_argv = argv;
   return RUN_ALL_TESTS();

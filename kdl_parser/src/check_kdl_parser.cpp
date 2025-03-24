@@ -37,18 +37,17 @@
 #include <iostream>
 #include <string>
 
+#include "kdl/chainfksolverpos_recursive.hpp"
+#include "kdl/frames_io.hpp"
 #include "kdl_parser/kdl_parser.hpp"
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/frames_io.hpp>
-#include <urdf_model/model.h>
-#include <urdf_parser/urdf_parser.h>
+#include "urdf/model.h"
 
 void printLink(const KDL::SegmentMap::const_iterator & link, const std::string & prefix)
 {
-  std::cout << prefix << "- Segment " << GetTreeElementSegment(link->second).getName() <<
-    " has " << GetTreeElementChildren(link->second).size() << " children" << std::endl;
-  for (unsigned int i = 0; i < GetTreeElementChildren(link->second).size(); i++) {
-    printLink(GetTreeElementChildren(link->second)[i], prefix + "  ");
+  std::cout << prefix << "- Segment " << KDL::GetTreeElementSegment(link->second).getName() <<
+    " has " << KDL::GetTreeElementChildren(link->second).size() << " children" << std::endl;
+  for (unsigned int i = 0; i < KDL::GetTreeElementChildren(link->second).size(); i++) {
+    printLink(KDL::GetTreeElementChildren(link->second)[i], prefix + "  ");
   }
 }
 
@@ -59,15 +58,15 @@ int main(int argc, char ** argv)
     std::cerr << "Expect xml file to parse" << std::endl;
     return -1;
   }
-  urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDFFile(argv[1]);
-  if (!robot_model) {
-    std::cerr << "Could not generate robot model" << std::endl;
+  urdf::Model robot_model;
+  if (!robot_model.initFile(argv[1])) {
+    cerr << "Could not generate robot model" << endl;
     return false;
   }
 
   KDL::Tree my_tree;
-  if (!kdl_parser::treeFromUrdfModel(*robot_model, my_tree)) {
-    std::cerr << "Could not extract kdl tree" << std::endl;
+  if (!kdl_parser::treeFromUrdfModel(robot_model, my_tree)) {
+    cerr << "Could not extract kdl tree" << endl;
     return false;
   }
 
